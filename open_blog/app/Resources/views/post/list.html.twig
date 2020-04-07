@@ -1,0 +1,16 @@
+{% extends 'layout.html.twig' %}
+{% block title %} Lista de artículos {% endblock %}
+{% block content %}
+    {% for type,messages in app.session.flashbag.all %}
+        {% for message in messages %}
+            {{message}}
+        {% endfor %}
+    {% endfor %}
+    <h2>Lista de articulos</h2>
+    <a href="{{path('post_new')}}">Crear nuevo</a>
+    <ul>
+        {% for post in posts %}
+            <li>Artículo ID: {{post.id}}. <a href="{{path('post_view', {'id':post.id})}}"> {{post.title}}</a> -> <a href="{{path('post_edit', {'id':post.id})}}">Editar</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

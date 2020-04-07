@@ -4,6 +4,8 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * User
@@ -21,6 +23,31 @@ class User
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+
+
+    /**
+     * @Assert\Email()
+     * @Assert\NotBlank(groups={"registration"})
+     * 
+     * @ORM\Column(name="email", type="string", length=255)
+     */
+    private $email;
+
+    /**
+     * @Assert\NotBlank(groups={"registration"})
+     * @Assert\Length(min=7, groups={"registration"})
+     * 
+     * @ORM\Column(name="password", type="string", length=255)
+     */
+    private $password;
+
+    /**
+     * @Assert\Length(min="2")
+     * 
+     * @ORM\Column(name="city", type="string", length=255, nullable=true)
+     */
+    private $city;
+
 
     /**
      * @ORM\OneToMany(targetEntity="Post",mappedBy="user", cascade={"persist"})

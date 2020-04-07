@@ -3,9 +3,11 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Post;
+use AppBundle\Form\PostType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -13,15 +15,17 @@ class PostController extends Controller
 {
 
     /**
-     * @Route("/post/list/{page}", name="list")
+     * @Route("/post/list/", name="list")
      */
-    public function listAction(Request $request, $page)
+    public function listAction(Request $request)
     {
         $postRepository = $this->getDoctrine()->getRepository('AppBundle:Post');
 
-        // $posts =$postRepository->findBy(array('id'=>4));
+        $posts =$postRepository->findAll();
 
-        return new Response('List '.$posts);
+        return $this->render('post/list.html.twig', array(
+            'posts'=>$posts
+        ));
     }
 
     /**
@@ -43,24 +47,30 @@ class PostController extends Controller
     public function newAction(Request $request)
     {
         $post = new Post();
-        $post->setTitle('10 Trucos Symfony');
-        $post->setSlug('10-trucos-symfony');
-        // $post->setDescription('Lorem ipsum dolor');
 
-        $validator = $this->get('validator');
-        $errors = $validator->validate($post,null, array('edit'));
+        $form = $this->createForm(PostType::class, $post, array());
 
-        if (count($errors) > 0) {
-            $errorsString = (string) $errors;
+        $form->handleRequest($request);
 
-            return new Response ($errorsString);
+        // $formData = $form->getData();
+        // $date = $formData['title']->getData();
+
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($post);
+            $em->flush();
+
+            $this->get('session')->getFlashBag()->add(
+                'success', 
+                'Se ha creado correctamente el articulo.'
+            );
+
+            return $this->redirect($this->generateUrl('list'));
         }
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($post);
-        $em->flush();
-
-        return new Response('Post creado con el slug '.$post->getSlug());
+        return $this->render('post/new.html.twig', array(
+            'form'=>$form->createView(),
+        ));
     }
 
     /**
@@ -80,7 +90,33 @@ class PostController extends Controller
      */
     public function editAction(Request $request, $id)
     {
-       
-        
+        $postRepository = $this->getDoctrine()->getRepository('AppBundle:Post');
+
+        $post =$postRepository->find($id);
+
+        $form = $this->createForm(PostType::class, $post, array());
+
+        $form->handleRequest($request);
+
+        // $formData = $form->getData();
+        // $date = $formData['title']->getData();
+
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($post);
+            $em->flush();
+
+            $this->get('session')->getFlashBag()->add(
+                'success', 
+                'Se ha guardado correctamente el articulo.'
+            );
+
+            return $this->redirect($this->generateUrl('list'));
+        }
+
+        return $this->render('post/edit.html.twig', array(
+            'post'=>$post,
+            'form'=>$form->createView(),
+        ));
     }
 }

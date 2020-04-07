@@ -28,19 +28,25 @@ class Post
     /**
      * @var string
      *
+     * @Assert\NotBlank()
+     * @Assert\Length(max = "255")
+     * 
      * @ORM\Column(name="title", type="string", length=255)
      */
     private $title;
 
     /**
      * @var string
-     *
+     * 
      * @ORM\Column(name="slug", type="string", length=255, unique=true)
+     *  
      */
     private $slug;
 
     /**
      * @var string
+     * @Assert\NotBlank(groups={"edit"})
+     * 
      * @ORM\Column(name="description", type="text", nullable=true)
      */
     private $description;
@@ -55,7 +61,7 @@ class Post
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="mod_date", type="datetime")
+     * @ORM\Column(name="mod_date", type="datetime", nullable=true)
      */
     private $modDate;
 
@@ -91,8 +97,6 @@ class Post
     public function setModificationDate(){
         $this->modDate=new \DateTime();
     }
-
-
 
     /**
      * Get id
@@ -293,4 +297,28 @@ class Post
     }
 
     
+
+    /**
+     * Set modDate
+     *
+     * @param \DateTime $modDate
+     *
+     * @return Post
+     */
+    public function setModDate($modDate)
+    {
+        $this->modDate = $modDate;
+
+        return $this;
+    }
+
+    /**
+     * Get modDate
+     *
+     * @return \DateTime
+     */
+    public function getModDate()
+    {
+        return $this->modDate;
+    }
 }
