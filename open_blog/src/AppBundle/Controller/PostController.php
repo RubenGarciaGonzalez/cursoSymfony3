@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Post;
 use AppBundle\Form\PostType;
+use AppBundle\Services\Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Doctrine\ORM\EntityManagerInterface;
@@ -105,6 +106,13 @@ class PostController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($post);
             $em->flush();
+
+            //Envío de email
+            /**
+             * @var Mailer $mailer
+             */
+            $mailer = $this->get('my_mailer');
+            $mailer->sendEmailAction();
 
             $this->get('session')->getFlashBag()->add(
                 'success', 
