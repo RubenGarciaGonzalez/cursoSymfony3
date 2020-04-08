@@ -1,75 +1,103 @@
 <?php
-
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
-
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * User
- *
- * @ORM\Table(name="user")
+ * @ORM\Table(name="app_users")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  */
-class User
+class User implements UserInterface, \Serializable
 {
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
-
     /**
-     * @Assert\Email()
-     * @Assert\NotBlank(groups={"registration"})
-     * 
-     * @ORM\Column(name="email", type="string", length=255)
+     * @ORM\Column(type="string", length=25, unique=true)
      */
-    private $email;
+    private $username;
 
     /**
-     * @Assert\NotBlank(groups={"registration"})
-     * @Assert\Length(min=7, groups={"registration"})
-     * 
-     * @ORM\Column(name="password", type="string", length=255)
+     * @ORM\Column(type="string", length=64)
      */
     private $password;
 
     /**
-     * @Assert\Length(min="2")
-     * 
-     * @ORM\Column(name="city", type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=60, unique=true)
      */
-    private $city;
-
+    private $email;
 
     /**
-     * @ORM\OneToMany(targetEntity="Post",mappedBy="user", cascade={"persist"})
+     * @ORM\Column(name="is_active", type="boolean")
      */
-    protected $posts;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Comment",mappedBy="user", cascade={"persist"})
-     */
-    protected $comments;
+    private $isActive;
 
     public function __construct()
     {
-        $this->posts = new ArrayCollection();
-        $this->comments = new ArrayCollection();
+        $this->isActive = true;
+        // may not be needed, see section on salt below
+        // $this->salt = md5(uniqid(null, true));
     }
 
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    public function getSalt()
+    {
+        // you *may* need a real salt depending on your encoder
+        // see section on salt below
+        return null;
+    }
+
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    public function getRoles()
+    {
+        return array('ROLE_ADMIN');
+    }
+
+    public function eraseCredentials()
+    {
+    }
+
+    /** @see \Serializable::serialize() */
+    public function serialize()
+    {
+        return serialize(array(
+            $this->id,
+            $this->username,
+            $this->password,
+            // see section on salt below
+            // $this->salt,
+        ));
+    }
+
+    /** @see \Serializable::unserialize() */
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+            $this->username,
+            $this->password,
+            // see section on salt below
+            // $this->salt
+            ) = unserialize($serialized);
+    }
 
     /**
      * Get id
      *
-     * @return int
+     * @return integer
      */
     public function getId()
     {
@@ -77,71 +105,31 @@ class User
     }
 
     /**
-     * Add post
+     * Set username
      *
-     * @param \AppBundle\Entity\Post $post
+     * @param string $username
      *
      * @return User
      */
-    public function addPost(\AppBundle\Entity\Post $post)
+    public function setUsername($username)
     {
-        $this->posts[] = $post;
+        $this->username = $username;
 
         return $this;
     }
 
     /**
-     * Remove post
+     * Set password
      *
-     * @param \AppBundle\Entity\Post $post
-     */
-    public function removePost(\AppBundle\Entity\Post $post)
-    {
-        $this->posts->removeElement($post);
-    }
-
-    /**
-     * Get posts
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getPosts()
-    {
-        return $this->posts;
-    }
-
-    /**
-     * Add comment
-     *
-     * @param \AppBundle\Entity\Comment $comment
+     * @param string $password
      *
      * @return User
      */
-    public function addComment(\AppBundle\Entity\Comment $comment)
+    public function setPassword($password)
     {
-        $this->comments[] = $comment;
+        $this->password = $password;
 
         return $this;
-    }
-
-    /**
-     * Remove comment
-     *
-     * @param \AppBundle\Entity\Comment $comment
-     */
-    public function removeComment(\AppBundle\Entity\Comment $comment)
-    {
-        $this->comments->removeElement($comment);
-    }
-
-    /**
-     * Get comments
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getComments()
-    {
-        return $this->comments;
     }
 
     /**
@@ -169,50 +157,26 @@ class User
     }
 
     /**
-     * Set password
+     * Set isActive
      *
-     * @param string $password
+     * @param boolean $isActive
      *
      * @return User
      */
-    public function setPassword($password)
+    public function setIsActive($isActive)
     {
-        $this->password = $password;
+        $this->isActive = $isActive;
 
         return $this;
     }
 
     /**
-     * Get password
+     * Get isActive
      *
-     * @return string
+     * @return boolean
      */
-    public function getPassword()
+    public function getIsActive()
     {
-        return $this->password;
-    }
-
-    /**
-     * Set city
-     *
-     * @param string $city
-     *
-     * @return User
-     */
-    public function setCity($city)
-    {
-        $this->city = $city;
-
-        return $this;
-    }
-
-    /**
-     * Get city
-     *
-     * @return string
-     */
-    public function getCity()
-    {
-        return $this->city;
+        return $this->isActive;
     }
 }

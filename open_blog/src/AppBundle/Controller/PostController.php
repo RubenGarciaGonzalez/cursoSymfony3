@@ -7,6 +7,7 @@ use AppBundle\Form\PostType;
 use AppBundle\Services\Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,6 +48,11 @@ class PostController extends Controller
      */
     public function newAction(Request $request)
     {
+
+        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException();
+        }
+
         $post = new Post();
 
         $form = $this->createForm(PostType::class, $post, array());

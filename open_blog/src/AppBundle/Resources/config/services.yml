@@ -1,15 +1,14 @@
 parameters:
-    my_mailer.class:     AppBundle\Services\Mailer
-    my_mailer.transport: '@mailer'
+    my_mailer.class:     AppBundle\Services\SendMail
+#    my_mailer.transport: '@mailer'
 
 services:
     app.admin.post:
         class: AppBundle\Admin\PostAdmin
-        arguments: [~, AppBundle\Entity\Post, Sonata\AdminBundle\Controller\CRUDController]
+        arguments: [~, AppBundle\Entity\Post, SonataAdminBundle:CRUD]
         tags:
             - { name: sonata.admin, manager_type: orm, group: admin, label: Post }
-        public: true
 
     my_mailer:
         class:       "%my_mailer.class%"
-        arguments:   ["%my_mailer.transport%"]
+#        arguments:   ["%my_mailer.transport%"]
