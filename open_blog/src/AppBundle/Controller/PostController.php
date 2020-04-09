@@ -12,6 +12,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Workflow\Transition;
+
 
 class PostController extends Controller
 {
@@ -25,7 +27,19 @@ class PostController extends Controller
 
         $posts =$postRepository->findAll();
 
+        $name = 'Lista';
+        $translator = $this->get('translator');
+        $title = $translator->trans(
+            "Hello %name%",
+            array("%name%" => $name)
+        );
+
+        $request->setLocale('en_US');
+        $locale = $request->getLocale();
+
         return $this->render('post/list.html.twig', array(
+            'locale'=>$locale,
+            'title'=>$title,
             'posts'=>$posts
         ));
     }
